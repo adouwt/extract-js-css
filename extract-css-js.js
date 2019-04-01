@@ -14,9 +14,10 @@ const readHtml = ()=>{
 // 新建文件夹
 const mkdirTest = ()=>{
     return new Promise(resolve => {
-        fs.mkdir('./test', { recursive: true }, (err, data)=>{
+        fs.mkdir('./test', { recursive: true }, (err)=>{
             if(err) {
-                throw Error(err)
+                // throw Error(err)
+                console.log(err)
             }
             console.log('文件夹写入成功！--NO2')
             resolve()
@@ -52,20 +53,19 @@ const writeHtml = (path, data) => {
 // 理解调用方法入口
 (async ()=>{
     console.log('==========================game-start=============================');
-    let cssReg = /<style>[\s|\S]*?<\/style>/g;
-    let jsReg = /<script>[\s|\S]*?<\/script>/g;
+    let cssReg = /<style\s*>[\s|\S]*?<\/style\s*>/g;
+    let jsReg = /<script\s*>[\s|\S]*?<\/script\s*>/g;
     let cssLink = '<link rel="stylesheet" href="./test.css">';
     let jsrc = '<script src="./test.js"></script>';
     let originContent = await readHtml();
     let cssContent, jsContent, htmlContentStr;
 
+    cssContent = JSON.stringify(originContent.match(cssReg)).replace(/<style\s*>/g,'').replace(/<\/style\s*>/g, '');
+    jsContent = JSON.stringify(originContent.match(jsReg)).replace(/<script\s*>/g,'').replace(/<\/script\s*>/g, '');
+    htmlContentStr = originContent.replace(cssReg, cssLink).replace(jsReg, jsrc);
+
     await mkdirTest();
     console.log('我应该是第三处理！--NO3')
-
-    cssContent = JSON.stringify(originContent.match(cssReg)).replace('<style>','').replace('</style>', '');
-    jsContent = JSON.stringify(originContent.match(jsReg)).replace('<script>','').replace('</script>', '');
-
-    htmlContentStr = originContent.replace(cssReg, cssLink).replace(jsReg, jsrc);
     
     await writeJCss('./test/test.css', JSON.parse(cssContent), 'css');
     console.log('我应该是第四处理！--NO4');
