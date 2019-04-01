@@ -1,0 +1,16 @@
+{
+  "name": "readhtml",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node extract-css-js.js",
+    "nodemon": "nodemon extract-css-js.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.18.10"
+  }
+}
