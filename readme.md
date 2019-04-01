@@ -3,7 +3,7 @@
 
 
 ## 使用
-### npm install --save
+### npm install --save (可选)
 ### npm run start 
 ### or
 ### node extract-css-js.js
