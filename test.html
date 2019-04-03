@@ -13,8 +13,52 @@
             top: 2px;
         }
     </style>
+    <style>
+        h3 {
+            background-color: #333;
+            color: #fff;
+        }
+
+        li {
+            height: 20px;
+            line-height: 20px;
+            color: red;
+            background-color: #fff;
+            border-top: 1px solid #333;
+            padding: 3px;
+        }
+    </style>
+
+
+
+
+
+
+    <style>
+            h4 {
+                background-color: #333;
+                color: #fff;
+            }
+    
+            ol li {
+                height: 20px;
+                line-height: 20px;
+                color: red;
+                background-color: #fff;
+                border-top: 1px solid #333;
+                padding: 3px;
+            }
+        </style>
 </head>
 <body>
+    <h3>123</h3>
+    <ol>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+    </ol>
     <script>
         var objOrigin = {
             a: '1',
@@ -29,6 +73,10 @@
         }
 
         document.write('objChange is '+ JSON.stringify(objChange))
+    </script>
+
+    <script>
+            console.log('this is second script')
     </script>
 </body>
 </html>

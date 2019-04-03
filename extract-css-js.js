@@ -19,14 +19,27 @@ const readHtml = ()=>{
 const mkdirTest = ()=>{
     return new Promise(resolve => {
         fs.mkdir('./test', { recursive: true }, (err, data)=>{
-            if(err) {
-                throw Error(err)
-            }
+            if (err) {
+                console.log(err)
+            };
             console.log('文件夹写入成功！--NO2')
             resolve()
         })
     })
 }
+// 删除文件夹
+const deleteDir = (path)=>{
+    return new Promise(resolve => {
+        fs.unlink(path, (err) => {
+            if (err) {
+                console.log(err)
+            };
+            console.log(`已成功删除 ${path}`);
+            resolve()
+        });
+    })
+}
+
 // 写入css 和js
 const writeJCss = (path, data, type) => {
     return new Promise(resolve => {
@@ -37,6 +50,17 @@ const writeJCss = (path, data, type) => {
             console.log(`${type} 抽取成功！`)
             resolve()
         })
+    })
+}
+const appendFile = (path, data, type) => {
+    return new Promise(resolve => {
+        fs.appendFile(path, data, (err) => {
+            if (err) {
+                console.log(err)
+            };
+            console.log(`${type}数据已追加到文件`);
+            resolve()
+        });
     })
 }
 // 写一个html
@@ -56,27 +80,51 @@ const writeHtml = (path, data) => {
 // 理解调用方法入口
 (async ()=>{
     console.log('==========================game-start=============================');
-    let cssReg = /<style>[\s|\S]*?<\/style>/g;
-    let jsReg = /<script>[\s|\S]*?<\/script>/g;
+    let cssReg = /<style>[\s|\S]*?<\/style>/ig;
+    let jsReg = /<script>[\s|\S]*?<\/script>/ig;
+    // let allStyleReg = /<style>.*<\/style>(.*<style>.*<\/style>)*./ig
     let cssLink = '<link rel="stylesheet" href="./test.css">';
     let jsrc = '<script src="./test.js"></script>';
     let originContent = await readHtml();
-    let cssContent, jsContent, htmlContentStr;
+    let styleCollection, scriptColletion;
+    let cssContent = '', jsContent = '', htmlContentStr;
+    await deleteDir('./test');
+    console.log('我应该是第一处理，删除文件夹！--NO1')
 
     await mkdirTest();
     console.log('我应该是第三处理！--NO3')
 
-    cssContent = JSON.stringify(originContent.match(cssReg)).replace('<style>','').replace('</style>', '');
-    jsContent = JSON.stringify(originContent.match(jsReg)).replace('<script>','').replace('</script>', '');
+    styleCollection = originContent.match(cssReg);
+    scriptColletion = originContent.match(jsReg);
+    // 处理 css
+    for (let i =0;i<styleCollection.length;i++) {
+        cssContent += JSON.stringify(styleCollection[i]);
+    }
 
-    htmlContentStr = originContent.replace(cssReg, cssLink).replace(jsReg, jsrc);
+    cssContent = cssContent.replace(/<style>/g,'').replace(/<\/style>/g, '').replace(/("")/g,'')
     
-    await writeJCss('./test/test.css', JSON.parse(cssContent), 'css');
-    console.log('我应该是第四处理！--NO4');
-    comb.processPath('./test/test.css');
-    await writeJCss('./test/test.js', JSON.parse(jsContent), 'js');
-    console.log('我应该是第五处理！--NO5');
+    for (let i =0;i<scriptColletion.length;i++) {
+        jsContent += JSON.stringify(scriptColletion[i]);
+    }
+    
+    jsContent = jsContent.replace(/<script>/g,'').replace(/<\/script>/g, '')
+    .replace(/<\/script>"*<script>/g, '').replace(/("")/g,'')
+    
+    await appendFile('./test/test.css', JSON.parse(cssContent), 'css');
+    
+    console.log('写入css后！')
 
+    await appendFile('./test/test.js', JSON.parse(jsContent), 'js');
+    console.log('写入js后！')
+
+
+
+    htmlContentStr = originContent
+    .replace(cssReg, (style)=>{
+        style = '';
+        return style
+    })
+    .replace(jsReg, jsrc);
     console.log('copyTest.html 准备写入');
     await writeHtml('./test/copyTest.html', htmlContentStr);
 

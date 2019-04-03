@@ -3,7 +3,7 @@
 
 
 ## 使用
-### npm install --save (可选)
+### npm install --save 
 ### npm run start 
 ### or
 ### node start.js
