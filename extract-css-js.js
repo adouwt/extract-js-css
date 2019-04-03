@@ -1,6 +1,5 @@
-const fs = require('fs');
-
-const csscomb = require('csscomb');
+import fs from 'fs'
+import csscomb from 'csscomb'
 
 var comb = new csscomb('zen');
 
