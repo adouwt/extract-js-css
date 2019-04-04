@@ -20,35 +20,46 @@ const deleteFile = (path)=>{
 }
 
 // 删除文件夹
-const deleteDir = (path)=>{
-    return new Promise(resolve => {
+const deleteDir = async (path)=>{
+    let  _files =  await new Promise (resolve => {
         fs.readdir(path, (err,files) => {
             if (err) {
                 console.log(err)
-                resolve()
             };
             console.log(`已成功读取 ${path} 文件夹`);
             resolve(files)
-        });
-    }).then((res, rej)=>{
-        console.log(res)
-        if(res && res.length) {
-            for(let i =0;i<res.length;i++) {
-                // console.log(res[i])
-                deleteFile('./test/'+res[i])
-            }
-            // api 只能删除空文件夹 note: 这里有问题，存在for 循环前触发
-            fs.rmdir(path, (err) => {
-                if (err) {
-                    console.log(err)
-                    // return
-                };
-                console.log(`已成功删除空 ${path}文件夹`);
-            });
+        })
+    })
+
+    if(_files && _files.length) {
+        for(let i =0;i<_files.length;i++) {
+            // console.log(_files[i],'innnnnn')
+           await deleteFile('./test/'+ _files[i])
         }
+    }
+    // console.log('delete hou')
+
+    await new Promise(resolve => {
+        fs.rmdir(path, (err) => {
+            if (err) {
+                console.log(err)
+            };
+            console.log(`已成功删除空 ${path}文件夹`);
+            resolve()
+        })
+    });
+}
+const emptyDir = (path) => {
+    return new Promise(resolve => {
+        fs.rmdir(path, (err) => {
+            if (err) {
+                console.log(err)
+            };
+            console.log(`已成功删除空 ${path}文件夹`);
+            resolve()
+        })
     })
 }
-
 // 新建文件夹
 /**
  *  
