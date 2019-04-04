@@ -1,9 +1,74 @@
-import fs from 'fs'
-import csscomb from 'csscomb'
+// import fs from 'fs'
+var fs = require('fs')
+// import csscomb from 'csscomb'
+// var csscomb = require('csscomb')
+// var comb = new csscomb('zen');
+// console.log(comb)
 
-var comb = new csscomb('zen');
+// 删除文件
+const deleteFile = (path)=>{
+    return new Promise(resolve => {
+        fs.unlink(path, (err) => {
+            if (err) {
+                console.log(err)
+                return
+            };
+            console.log(`已成功删除 ${path}文件`);
+            resolve()
+        });
+    })
+}
+
+// 删除文件夹
+const deleteDir = (path)=>{
+    return new Promise(resolve => {
+        fs.readdir(path, (err,files) => {
+            if (err) {
+                console.log(err)
+                resolve()
+            };
+            console.log(`已成功读取 ${path} 文件夹`);
+            resolve(files)
+        });
+    }).then((res, rej)=>{
+        console.log(res)
+        if(res && res.length) {
+            for(let i =0;i<res.length;i++) {
+                // console.log(res[i])
+                deleteFile('./test/'+res[i])
+            }
+            // api 只能删除空文件夹 note: 这里有问题，存在for 循环前触发
+            fs.rmdir(path, (err) => {
+                if (err) {
+                    console.log(err)
+                    // return
+                };
+                console.log(`已成功删除空 ${path}文件夹`);
+            });
+        }
+    })
+}
+
+// 新建文件夹
+/**
+ *  
+ */
+const mkdirTest = ()=>{
+    return new Promise(resolve => {
+        fs.mkdir('./test', { recursive: true }, (err, data)=>{
+            if (err) {
+                console.log(err)
+            };
+            console.log('新建文件夹成功')
+            resolve()
+        })
+    })
+}
 
 // 读取html 内容
+/**
+ * 
+ */
 const readHtml = ()=>{
     return new Promise(resolve => {
         fs.readFile('./test.html', 'utf-8', (err, data)=>{
@@ -15,62 +80,16 @@ const readHtml = ()=>{
         })
     })
 }
-// 新建文件夹
-const mkdirTest = ()=>{
-    return new Promise(resolve => {
-        fs.mkdir('./test', { recursive: true }, (err, data)=>{
-            if (err) {
-                console.log(err)
-            };
-            console.log('文件夹写入成功！--NO2')
-            resolve()
-        })
-    })
-}
-// 删除文件夹
-const deleteFile = (path)=>{
-    return new Promise(resolve => {
-        fs.unlink(path, (err) => {
-            if (err) {
-                console.log(err)
-            };
-            console.log(`已成功删除 ${path}`);
-            resolve()
-        });
-    })
-}
-
-// 删除文件
-const deleteDir = (path)=>{
-    return new Promise(resolve => {
-        fs.readdir(path, (err,files) => {
-            if (err) {
-                console.log(err)
-            };
-            console.log(`已成功删除 ${path}`);
-            resolve(files)
-        });
-    }).then((res, rej)=>{
-        console.log(res)
-        for(let i = 0; i < res; i++) {
-            console.log(res[i] + 'file')
-        }
-    })
-}
 
 // 写入css 和js
-const writeJCss = (path, data, type) => {
-    return new Promise(resolve => {
-        fs.writeFile(path, data, (err)=>{
-            if(err) {
-                console.log(err)
-            }
-            console.log(`${type} 抽取成功！`)
-            resolve()
-        })
-    })
-}
-
+/**
+ * 向文件中追加内容
+ * @param {是文件名字} path 
+ * @param {写入文件的内容} data 
+ * @param {文件类型} type 
+ * @author erlinger
+ * @time 
+ */
 const appendFile = (path, data, type) => {
     return new Promise(resolve => {
         fs.appendFile(path, data, (err) => {
@@ -90,17 +109,20 @@ const writeHtml = (path, data) => {
                 console.log('err', err)
                 return
             }
-            console.log(`${path} 写入成功`);
+            console.log(`${path} 写入成功，功能结束!`);
             resolve() // 必须resolve 。不然 promise 就到此为止，调用该方法后面的代码将不执行
         })
     })
 }
 
-// 理解调用方法入口
+// 插件 方法入口
 (async ()=>{
     console.log('==========================game-start=============================');
     await deleteDir('./test');
-    console.log('我应该是第一处理，删除文件夹！--NO1')
+    console.log('我应该是等---删除文件夹后---才出现')
+
+    await mkdirTest();
+    console.log('我应该是在---文件夹新建成功---后出现！');
 
     let cssReg = /<style>[\s|\S]*?<\/style>/ig;
     let jsReg = /<script>[\s|\S]*?<\/script>/ig;
@@ -114,9 +136,6 @@ const writeHtml = (path, data) => {
     let originContent = await readHtml();
     styleCollection = originContent.match(cssReg);
     scriptColletion = originContent.match(jsReg);
-
-    await mkdirTest();
-    console.log('我应该是第三处理！--NO3');
     
     // 处理 css
     for (let i =0;i<styleCollection.length;i++) {
@@ -133,17 +152,17 @@ const writeHtml = (path, data) => {
     .replace(/<\/script>"*<script>/g, '').replace(/("")/g,'')
     
     await appendFile('./test/test.css', JSON.parse(cssContent), 'css');
-    console.log('写入css后！')
+    console.log('我应该是在---css写入成功---后出现！');
 
     await appendFile('./test/test.js', JSON.parse(jsContent), 'js');
-    console.log('写入js后！')
+    console.log('我应该是在---js写入成功---后出现！');
 
     htmlContentStr = originContent
     .replace(allStyleReg, '')
     .replace(cssReg, cssLink)
     .replace(allScriptReg, '')
     .replace(jsReg, jsrc);
-    console.log('copyTest.html 准备写入');
+    console.log('copyTest.html 文本已经格式化，准备写入');
     await writeHtml('./test/copyTest.html', htmlContentStr);
 
     console.log('==========================game-over=============================');
