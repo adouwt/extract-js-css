@@ -16,6 +16,7 @@
     "nodemon": "^1.18.10"
   },
   "dependencies": {
-    "csscomb": "^4.2.0"
+    "csscomb": "^4.2.0",
+    "jsdom": "^14.0.0"
   }
 }

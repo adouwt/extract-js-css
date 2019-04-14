@@ -1,6 +1,8 @@
 // extract-js-css
 // import fs from 'fs'
-var fs = require('fs')
+const fs = require('fs')
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
 // import csscomb from 'csscomb'
 // var csscomb = require('csscomb')
 // var comb = new csscomb('zen');
@@ -145,28 +147,25 @@ const writeHtml = (path, data) => {
     let styleCollection, scriptColletion;
     let cssContent = '', jsContent = '', htmlContentStr = '';
 
+
     let originContent = await readHtml();
-    styleCollection = originContent.match(cssReg);
-    scriptColletion = originContent.match(jsReg);
-    
-    // 处理 css
-    for (let i =0;i<styleCollection.length;i++) {
-        cssContent += JSON.stringify(styleCollection[i]);
+    const dom = new JSDOM(originContent);
+    styleCollection = dom.window.document.querySelectorAll("style");
+    scriptColletion = dom.window.document.querySelectorAll("script");
+
+
+    for(let i =0;i<styleCollection.length;i++) {
+        cssContent += styleCollection[i].textContent
     }
 
-    cssContent = cssContent.replace(/<style\s*>/g,'').replace(/<\/style\s*>/g, '').replace(/("")/g,'')
-    
-    for (let i =0;i<scriptColletion.length;i++) {
-        jsContent += JSON.stringify(scriptColletion[i]);
+    for(let i =0;i<scriptColletion.length;i++) {
+        jsContent += scriptColletion[i].textContent
     }
-    
-    jsContent = jsContent.replace(/<script\s*>/g,'').replace(/<\/script\s*>/g, '')
-    .replace(/<\/script\s*>"*<script\s*>/g, '').replace(/("")/g,'')
-    
-    await appendFile('./test/test.css', JSON.parse(cssContent), 'css');
+
+    await appendFile('./test/test.css', cssContent, 'css');
     console.log('我应该是在---css写入成功---后出现！');
 
-    await appendFile('./test/test.js', JSON.parse(jsContent), 'js');
+    await appendFile('./test/test.js', jsContent, 'js');
     console.log('我应该是在---js写入成功---后出现！');
 
     htmlContentStr = originContent
@@ -176,6 +175,7 @@ const writeHtml = (path, data) => {
     .replace(jsReg, jsrc);
     console.log('copyTest.html 文本已经格式化，准备写入');
     await writeHtml('./test/copyTest.html', htmlContentStr);
+
 
     console.log('==========================game-over=============================');
 })()
