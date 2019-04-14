@@ -1,3 +1,4 @@
+// extract-js-css
 // import fs from 'fs'
 var fs = require('fs')
 // import csscomb from 'csscomb'
@@ -135,10 +136,10 @@ const writeHtml = (path, data) => {
     await mkdirTest();
     console.log('我应该是在---文件夹新建成功---后出现！');
 
-    let cssReg = /<style>[\s|\S]*?<\/style>/ig;
-    let jsReg = /<script>[\s|\S]*?<\/script>/ig;
-    let allStyleReg = /<\/style>[\s|\S]*?<style>/ig;
-    let allScriptReg = /<\/script>[\s|\S]*?<script>/ig;
+    let cssReg = /<style[\s|\S]*>[\s|\S]*?<\/style\s*>/ig;
+    let jsReg = /<script\s*>[\s|\S]*?<\/script\s*>/ig;
+    let allStyleReg = /<\/style>[\s|\S]*?<style\s*>/ig;
+    let allScriptReg = /<\/script\s*>[\s|\S]*?<script\s*>/ig;
     let cssLink = '<link rel="stylesheet" href="./test.css">';
     let jsrc = '<script src="./test.js"></script>';
     let styleCollection, scriptColletion;
@@ -153,14 +154,14 @@ const writeHtml = (path, data) => {
         cssContent += JSON.stringify(styleCollection[i]);
     }
 
-    cssContent = cssContent.replace(/<style>/g,'').replace(/<\/style>/g, '').replace(/("")/g,'')
+    cssContent = cssContent.replace(/<style\s*>/g,'').replace(/<\/style\s*>/g, '').replace(/("")/g,'')
     
     for (let i =0;i<scriptColletion.length;i++) {
         jsContent += JSON.stringify(scriptColletion[i]);
     }
     
-    jsContent = jsContent.replace(/<script>/g,'').replace(/<\/script>/g, '')
-    .replace(/<\/script>"*<script>/g, '').replace(/("")/g,'')
+    jsContent = jsContent.replace(/<script\s*>/g,'').replace(/<\/script\s*>/g, '')
+    .replace(/<\/script\s*>"*<script\s*>/g, '').replace(/("")/g,'')
     
     await appendFile('./test/test.css', JSON.parse(cssContent), 'css');
     console.log('我应该是在---css写入成功---后出现！');
